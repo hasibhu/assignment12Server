@@ -2,13 +2,14 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+const bodyParser = require('body-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 3004;
 
 // middlewares 
 app.use(cors());
 app.use(express.json());
-
+app.use(bodyParser.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qoryues.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -80,6 +81,42 @@ app.get('/users',  async (req, res) => {
 
 
 
+
+// PATCH endpoint to change user role
+app.patch('/users/role/:email', async (req, res) => {
+    const userEmail = req.params.email;
+    console.log(userEmail);
+    const newRole = req.body.role;
+
+    try {
+        // Find the user first
+        const user = await userCollection.findOne({ email: userEmail });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Ensure only non-admin users can have their roles changed // TODO: email specific user can't change his own role
+        // if (user.email === 'admin') {
+        //     return res.status(400).json({ message: 'Cannot change role for admin users' });
+        // }
+
+        // Update the user's role using $set
+        const result = await userCollection.updateOne(
+            { email: userEmail },
+            { $set: { role: newRole } }
+        );
+
+        if (result.modifiedCount > 0) {
+            res.status(200).json({ message: 'Role updated successfully', modifiedCount: result.modifiedCount });
+        } else {
+            res.status(400).json({ message: 'Role update failed' });
+        }
+    } catch (error) {
+        console.error('Error changing role:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 
