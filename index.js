@@ -37,6 +37,7 @@ dbConnect();
 // collections 
 const userCollection = client.db("assignment12").collection("users");
 const locationCollection = client.db("assignment12").collection("locations");
+const requestCollection = client.db("assignment12").collection("donationRequest");
 
 
 
