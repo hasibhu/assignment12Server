@@ -82,7 +82,7 @@ app.get('/users',  async (req, res) => {
 
 
 
-// PATCH endpoint to change user role
+// PATCH endpoint to change user role in usermanagement component
 app.patch('/users/role/:email', async (req, res) => {
     const userEmail = req.params.email;
     console.log(userEmail);
@@ -118,6 +118,28 @@ app.patch('/users/role/:email', async (req, res) => {
     }
 });
 
+
+
+app.patch('/users/status/:id', async (req, res) => {
+    const userId = req.params.id;
+    const newStatus = req.body.status;
+
+    try {
+        const result = await userCollection.updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { status: newStatus } }
+        );
+
+        if (result.modifiedCount > 0) {
+            res.json({ message: 'User status updated successfully', modifiedCount: result.modifiedCount });
+        } else {
+            res.status(404).json({ message: 'User not found or status not modified' });
+        }
+    } catch (error) {
+        console.error('Error changing user status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 
 
