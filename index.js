@@ -144,7 +144,49 @@ app.patch('/users/status/:id', async (req, res) => {
 
 
 
+// Endpoint to check if a user is an admin for dashboard component
+app.get('/users/admin/:email', async (req, res) => {
+    const email = req.params.email;
+    try {
+        const user = await userCollection.findOne({ email: email });
+        res.json({ admin: user?.role === 'admin' });
+    } catch (error) {
+        console.error('Error checking admin status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
+// Endpoint to check if a user is a donor for dashboard component
+app.get('/users/donor/:email', async (req, res) => {
+    const email = req.params.email;
+    try {
+        const user = await userCollection.findOne({ email: email });
+        if (user && user.role === 'donor') {
+            res.json({ donor: true });
+        } else {
+            res.json({ donor: false });
+        }
+    } catch (error) {
+        console.error('Error checking donor status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to check if a user is a volunteer for dashboard component
+app.get('/users/volunteer/:email', async (req, res) => {
+    const email = req.params.email;
+    try {
+        const user = await userCollection.findOne({ email: email });
+        if (user && user.role === 'volunteer') {
+            res.json({ volunteer: true });
+        } else {
+            res.json({ volunteer: false });
+        }
+    } catch (error) {
+        console.error('Error checking volunteer status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 
 
