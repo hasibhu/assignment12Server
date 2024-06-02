@@ -5,6 +5,7 @@ require("dotenv").config();
 const bodyParser = require('body-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 3004;
+var jwt = require('jsonwebtoken');
 
 // middlewares 
 app.use(cors());
@@ -39,6 +40,18 @@ const locationCollection = client.db("assignment12").collection("locations");
 
 
 
+// jwt related api 
+
+app.post('/jwt', async (req, res) => {
+    try {
+        const user = req.body;
+        const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '365d' });
+        res.send({ token })
+
+    } catch (error) {
+        console.log(error);
+    }
+})
 
 // user related apis 
 
