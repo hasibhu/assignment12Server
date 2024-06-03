@@ -233,6 +233,14 @@ app.get('/users/volunteer/:email', async (req, res) => {
 
 
 
+// donationRequests save data in db from createDonationRequest component
+
+//post/save data in db //basic code
+app.post('/donationRequests', async (req, res) => {
+    const info = req.body;
+    const result = await requestCollection.insertOne(info);
+    res.send(result);
+})
 
 
 
