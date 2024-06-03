@@ -241,7 +241,11 @@ app.post('/donationRequests', async (req, res) => {
     const result = await requestCollection.insertOne(info);
     res.send(result);
 })
-
+//get data from db //basic code
+app.get('/donationRequests', async (req, res) => {
+    const result = await requestCollection.find().toArray();
+    res.send(result);
+})
 
 
 
