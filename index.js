@@ -8,7 +8,14 @@ const port = process.env.PORT || 3004;
 var jwt = require('jsonwebtoken');
 
 // middlewares 
-app.use(cors());
+const corsOptions = {
+    origin: ['http://localhost:5176', 'https://api.imgbb.com'],
+    credentials: true,
+    optionSuccessStatus: 200,
+};
+
+//middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.json());
 
