@@ -45,6 +45,7 @@ dbConnect();
 const userCollection = client.db("assignment12").collection("users");
 const locationCollection = client.db("assignment12").collection("locations");
 const requestCollection = client.db("assignment12").collection("donationRequest");
+const blogCollection = client.db("assignment12").collection("blogs");
 
 
 
@@ -54,7 +55,7 @@ app.post('/jwt', async (req, res) => {
     try {
         const user = req.body;
         const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '365d' });
-        res.send({ token })
+        res.send({ token }) //name will be token and will take value of the toke from previous line.
 
     } catch (error) {
         console.log(error);
@@ -80,10 +81,26 @@ const verifyToken = (req, res, next) => {
             return res.status(401).send({ message: "Acces Forbidden" })
         }
         req.decoded = decoded;
-
+        console.log('decoded here', decoded);
         next();
     });
 };
+
+// const verifyToken = (req, res, next) => {
+//     const token = req.headers.authorization?.split(' ')[1];
+//     if (!token) {
+//         return res.status(401).send({ message: "Forbidden Access" });
+//     }
+
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+//         if (err) {
+//             return res.status(401).send({ message: "Access Forbidden" });
+//         }
+//         req.decoded = decoded;
+//         next();
+//     });
+// };
+
 
 // user related apis 
 
@@ -95,7 +112,7 @@ const verifyToken = (req, res, next) => {
 // })
 
 // post/save data in db //conditional code
-app.post('/users', async (req, res) => {
+app.post('/users', verifyToken, async (req, res) => {
     const user = req.body;
     const query = { email: user.email };
     const userExist = await userCollection.findOne(query);
@@ -165,7 +182,7 @@ app.patch('/users/role/:email', async (req, res) => {
 
 
 
-app.patch('/users/status/:id', async (req, res) => {
+app.patch('/users/status/:id',  async (req, res) => {
     const userId = req.params.id;
     const newStatus = req.body.status;
 
@@ -190,19 +207,34 @@ app.patch('/users/status/:id', async (req, res) => {
 
 
 // Endpoint to check if a user is an admin for dashboard component
-app.get('/users/admin/:email', async (req, res) => {
+app.get('/users/admin/:email', verifyToken,  async (req, res) => {
     const email = req.params.email;
+
+    if (email !== req.decoded.email) {
+        return res.status(403).send({message: 'I am not getting the admin.'})
+    }
+
+
+
     try {
         const user = await userCollection.findOne({ email: email });
-        res.json({ admin: user?.role === 'admin' });
+        let userRole = false;
+        if (user) {
+            userRole = user?.role === 'admin'||'donor'||'volunteer'
+        }
+        res.json(userRole);
     } catch (error) {
         console.error('Error checking admin status:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
+
+
+
+
 // Endpoint to check if a user is a donor for dashboard component
-app.get('/users/donor/:email', async (req, res) => {
+app.get('/users/donor/:email', verifyToken, async (req, res) => {
     const email = req.params.email;
     try {
         const user = await userCollection.findOne({ email: email });
@@ -218,7 +250,7 @@ app.get('/users/donor/:email', async (req, res) => {
 });
 
 // Endpoint to check if a user is a volunteer for dashboard component
-app.get('/users/volunteer/:email', async (req, res) => {
+app.get('/users/volunteer/:email', verifyToken, async (req, res) => {
     const email = req.params.email;
     try {
         const user = await userCollection.findOne({ email: email });
@@ -256,8 +288,32 @@ app.get('/donationRequests', async (req, res) => {
 
 
 
-// get all locations for 
 
+
+
+//post/save blogs data in db //basic code
+app.post('/blogs', async (req, res) => {
+    const info = req.body;
+    const result = await blogCollection.insertOne(info);
+    res.send(result);
+})
+
+
+
+//get blogs data from db //basic code
+app.get('/blogs', async (req, res) => {
+    const result = await blogCollection.find().toArray();
+    res.send(result);
+})
+
+
+
+
+
+
+
+
+// get all locations for 
 app.get('/locations', async (req, res) => {
     const result = await locationCollection.find().toArray();
     res.send(result);
