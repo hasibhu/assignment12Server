@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://api.imgbb.com'],
+    origin: ['http://localhost:5176', 'https://api.imgbb.com', 'https://hasibulislam.de/dist/'],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -306,6 +306,69 @@ app.get('/donationRequests', async (req, res) => {
     const result = await requestCollection.find().toArray();
     res.send(result);
 })
+
+
+// payment 
+
+
+
+
+app.post('/create-payment-intent', async (req, res) => {
+    const { price } = req.body;
+    const amount = parseInt(price * 100);
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            payment_method_types: ['card']
+        });
+
+        res.send({
+            clientSecret: paymentIntent.client_secret
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+
+
+
+// payment data save api from checkOutForm component 
+// app.post('/payments', async (req, res) => {
+//     const payment = req.body;
+//     const result = await paymentCollection.insertOne(payment);
+// });
+
+
+
+app.post('/payments', async (req, res) => {
+    const payment = req.body;
+    try {
+        const result = await paymentCollection.insertOne(payment);
+        res.status(201).send({ insertedId: result.insertedId });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
