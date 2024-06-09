@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 3004;
 var jwt = require('jsonwebtoken');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
@@ -46,6 +47,7 @@ const userCollection = client.db("assignment12").collection("users");
 const locationCollection = client.db("assignment12").collection("locations");
 const requestCollection = client.db("assignment12").collection("donationRequest");
 const blogCollection = client.db("assignment12").collection("blogs");
+const paymentCollection = client.db("assignment12").collection("payments");
 
 
 
@@ -204,6 +206,25 @@ app.patch('/users/status/:id',  async (req, res) => {
 });
 
 
+//update profile api for UpdateProfile component
+
+app.patch('/users/:email', async (req, res) => {
+    const email = req.params.email;
+    const updatedUser = req.body;
+
+    const filter = { email: email };
+    const updateDoc = {
+        $set: updatedUser,
+    };
+
+    try {
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 
 
 // Endpoint to check if a user is an admin for dashboard component
@@ -305,10 +326,6 @@ app.get('/blogs', async (req, res) => {
     const result = await blogCollection.find().toArray();
     res.send(result);
 })
-
-
-
-
 
 
 
