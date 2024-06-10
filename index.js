@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://api.imgbb.com', 'https://hasibulislam.de/dist/'],
+    origin: ['http://localhost:5176', 'https://api.imgbb.com'],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -69,7 +69,7 @@ app.post('/jwt', async (req, res) => {
 
 // jwt middlewares 
 const verifyToken = (req, res, next) => {
-    // console.log('Inside verify token', req.headers); //receive it from allUsers component
+    console.log('Inside verify token', req.headers); //receive it from allUsers component
     console.log('Inside verify token', req.headers.authorization);
 
     if (!req.headers.authorization) {
@@ -114,7 +114,7 @@ const verifyToken = (req, res, next) => {
 // })
 
 // post/save data in db //conditional code
-app.post('/users', verifyToken, async (req, res) => {
+app.post('/users', async (req, res) => {
     const user = req.body;
     const query = { email: user.email };
     const userExist = await userCollection.findOne(query);
@@ -131,7 +131,7 @@ app.post('/users', verifyToken, async (req, res) => {
 
 
 // get all users TODO: verification add-
-app.get('/users',  async (req, res) => {
+app.get('/users', async (req, res) => {
     // console.log('Request Headers:', req.headers); //receive it from allUsers component
 
     try {
@@ -184,7 +184,7 @@ app.patch('/users/role/:email', async (req, res) => {
 
 
 
-app.patch('/users/status/:id',  async (req, res) => {
+app.patch('/users/status/:id', async (req, res) => {
     const userId = req.params.id;
     const newStatus = req.body.status;
 
@@ -228,11 +228,11 @@ app.patch('/users/:email', async (req, res) => {
 
 
 // Endpoint to check if a user is an admin for dashboard component
-app.get('/users/admin/:email', verifyToken,  async (req, res) => {
+app.get('/users/admin/:email', verifyToken, async (req, res) => {
     const email = req.params.email;
 
     if (email !== req.decoded.email) {
-        return res.status(403).send({message: 'I am not getting the admin.'})
+        return res.status(403).send({ message: 'I am not getting the admin.' })
     }
 
 
@@ -241,7 +241,7 @@ app.get('/users/admin/:email', verifyToken,  async (req, res) => {
         const user = await userCollection.findOne({ email: email });
         let userRole = false;
         if (user) {
-            userRole = user?.role === 'admin'||'donor'||'volunteer'
+            userRole = user?.role === 'admin' || 'donor' || 'volunteer'
         }
         res.json(userRole);
     } catch (error) {
@@ -319,6 +319,37 @@ app.get('/donationRequests/:id', async (req, res) => {
 });
 
 
+app.patch('/donationRequests/status/:id', async (req, res) => {
+    const userId = req.params.id;
+    const newStatus = req.body.status;
+
+    try {
+        const result = await requestCollection.updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { status: newStatus } }
+        );
+
+        if (result.modifiedCount > 0) {
+            res.json({ message: 'User status updated successfully', modifiedCount: result.modifiedCount });
+        } else {
+            res.status(404).json({ message: 'User not found or status not modified' });
+        }
+    } catch (error) {
+        console.error('Error changing user status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
 // payment 
 app.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
@@ -359,20 +390,6 @@ app.post('/payments', async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
