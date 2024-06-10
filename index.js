@@ -307,12 +307,19 @@ app.get('/donationRequests', async (req, res) => {
     res.send(result);
 })
 
+//get id specific data in DonationRequestDetails component
+app.get('/donationRequests/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await requestCollection.findOne({ _id: new ObjectId(id) });
+    if (result) {
+        res.send(result);
+    } else {
+        res.status(404).send('Donation request not found');
+    }
+});
+
 
 // payment 
-
-
-
-
 app.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
     const amount = parseInt(price * 100);
