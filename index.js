@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://api.imgbb.com'],
+    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com'],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -391,6 +391,23 @@ app.post('/payments', async (req, res) => {
     }
 });
 
+// app.get('/payments', async (req, res) => {
+//     const result = await paymentCollection.find().toArray();
+//     res.send(result);
+// });
+app.get('/payments', async (req, res) => {
+    try {
+        const result = await paymentCollection.find().sort({ _id: -1 }).toArray();
+        res.send(result);
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+
+
+
 
 
 
@@ -404,15 +421,25 @@ app.post('/blogs', async (req, res) => {
     const info = req.body;
     const result = await blogCollection.insertOne(info);
     res.send(result);
-})
-
-
+});
 
 //get blogs data from db //basic code
 app.get('/blogs', async (req, res) => {
     const result = await blogCollection.find().toArray();
     res.send(result);
-})
+});
+
+
+//get id specific data in BlogDetails component
+app.get('/blogs/:id', async (req, res) => {
+    const id = req.params.id;
+    const result = await blogCollection.findOne({ _id: new ObjectId(id) });
+    if (result) {
+        res.send(result);
+    } else {
+        res.status(404).send('Donation request not found');
+    }
+});
 
 
 
