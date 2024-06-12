@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com'],
+    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com', 'http://localhost:5176'],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -318,7 +318,7 @@ app.get('/donationRequests/:id', async (req, res) => {
     }
 });
 
-
+//for allusersmanagement component in admin panel
 app.patch('/donationRequests/status/:id', async (req, res) => {
     const userId = req.params.id;
     const newStatus = req.body.status;
@@ -342,15 +342,74 @@ app.patch('/donationRequests/status/:id', async (req, res) => {
 
 
 
+// app.patch('/donationRequests/update/:id', async (req, res) => {
+//     const userId = req.params.id;
+//     const newStatus = req.body.requestInfo;
 
+//     try {
+//         const result = await requestCollection.updateOne(
+//             { _id: new ObjectId(userId) },
+//             { $set: { status: newStatus } }
+//         );
 
-
+//         if (result.modifiedCount > 0) {
+//             res.json({ message: 'User status updated successfully', modifiedCount: result.modifiedCount });
+//         } else {
+//             res.status(404).json({ message: 'User not found or status not modified' });
+//         }
+//     } catch (error) {
+//         console.error('Error changing user status:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 
 
 
 
 
 // payment 
+
+
+app.patch('/donationRequests/update/:id', async (req, res) => {
+    const userId = req.params.id;
+    const newStatus = req.body.requestInfo;
+
+    console.log('Received update request for userId:', userId);
+    console.log('New status to update:', newStatus);
+
+    try {
+        const result = await requestCollection.updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: newStatus }
+        );
+
+        console.log('Update result:', result);
+
+        if (result.modifiedCount > 0) {
+            res.json({ message: 'User status updated successfully', modifiedCount: result.modifiedCount });
+        } else {
+            res.status(404).json({ message: 'User not found or status not modified' });
+        }
+    } catch (error) {
+        console.error('Error changing user status:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
     const amount = parseInt(price * 100);
@@ -404,12 +463,6 @@ app.get('/payments', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
-
-
-
-
-
-
 
 
 
