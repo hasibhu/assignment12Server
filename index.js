@@ -49,10 +49,7 @@ const requestCollection = client.db("assignment12").collection("donationRequest"
 const blogCollection = client.db("assignment12").collection("blogs");
 const paymentCollection = client.db("assignment12").collection("payments");
 
-
-
-// jwt related api 
-
+// jwt related api for login
 app.post('/jwt', async (req, res) => {
     try {
         const user = req.body;
