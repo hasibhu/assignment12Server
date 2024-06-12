@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com', 'http://localhost:5176'],
+    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com', 'http://localhost:5176', 'https://hasibulislam.de/'],
     credentials: true,
     optionSuccessStatus: 200,
 };
