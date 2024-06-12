@@ -128,8 +128,6 @@ app.post('/users', async (req, res) => {
 });
 
 
-
-
 // get all users TODO: verification add-
 app.get('/users', async (req, res) => {
     // console.log('Request Headers:', req.headers); //receive it from allUsers component
@@ -142,9 +140,6 @@ app.get('/users', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
-
-
-
 
 // PATCH endpoint to change user role in usermanagement component
 app.patch('/users/role/:email', async (req, res) => {
@@ -289,10 +284,6 @@ app.get('/users/volunteer/:email', verifyToken, async (req, res) => {
 
 
 
-
-
-
-
 // donationRequests save data in db from createDonationRequest component
 
 //post/save data in db //basic code
@@ -396,19 +387,25 @@ app.patch('/donationRequests/update/:id', async (req, res) => {
     }
 });
 
+// delete donation request data 
+app.delete('/deleteDonationRequest/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await requestCollection.deleteOne(query);
+        res.json(result);
+    } catch (error) {
+        console.error("Error deleting job:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 
 
 
 
 
-
-
-
-
-
-
-
+//Payment part 
 
 app.post('/create-payment-intent', async (req, res) => {
     const { price } = req.body;
@@ -428,17 +425,6 @@ app.post('/create-payment-intent', async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
-
-
-
-
-// payment data save api from checkOutForm component 
-// app.post('/payments', async (req, res) => {
-//     const payment = req.body;
-//     const result = await paymentCollection.insertOne(payment);
-// });
-
-
 
 app.post('/payments', async (req, res) => {
     const payment = req.body;
@@ -491,6 +477,20 @@ app.get('/blogs/:id', async (req, res) => {
         res.send(result);
     } else {
         res.status(404).send('Donation request not found');
+    }
+});
+
+
+// delete blog data 
+app.delete('/deleteBlog/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await blogCollection.deleteOne(query);
+        res.json(result);
+    } catch (error) {
+        console.error("Error deleting job:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
