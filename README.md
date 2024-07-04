@@ -15,7 +15,7 @@
 <h6> cd assignment12Server</h6>
 <h6> npm i</h6>
 <h6>npm i express dotenv jwt cors mongodb stripe body-parser nodemon</h6>
-<h6> nodemon index.js</h6>
+<h6>run>  nodemon index.js</h6>
 
 
 
