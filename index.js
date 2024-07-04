@@ -10,7 +10,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middlewares 
 const corsOptions = {
-    origin: ['http://localhost:5176', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com', 'http://localhost:5176', 'https://hasibulislam.de/'],
+    origin: ['http://localhost:5176', 'http://localhost:5173', 'https://assignment12-a0d19.web.app', 'https://api.imgbb.com', 'http://localhost:5175', 'https://hasibulislam.de/'],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -227,8 +227,6 @@ app.get('/users/admin/:email', verifyToken, async (req, res) => {
         return res.status(403).send({ message: 'I am not getting the admin.' })
     }
 
-
-
     try {
         const user = await userCollection.findOne({ email: email });
         let userRole = false;
@@ -275,6 +273,30 @@ app.get('/users/volunteer/:email', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Error checking volunteer status:', error);
         res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+// user delete api from usermanagement 
+
+
+app.delete('/deleteUser/:id', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: 'Invalid user ID format' });
+        }
+
+        const result = await userCollection.deleteOne({ _id: new ObjectId(userId) });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ deletedCount: result.deletedCount });
+    } catch (error) {
+        console.error("Error deleting user:", error.message, error.stack);
+        res.status(500).json({ error: 'An error occurred while deleting the user' });
     }
 });
 
@@ -330,27 +352,33 @@ app.patch('/donationRequests/status/:id', async (req, res) => {
 
 
 
-// app.patch('/donationRequests/update/:id', async (req, res) => {
-//     const userId = req.params.id;
-//     const newStatus = req.body.requestInfo;
 
-//     try {
-//         const result = await requestCollection.updateOne(
-//             { _id: new ObjectId(userId) },
-//             { $set: { status: newStatus } }
-//         );
 
-//         if (result.modifiedCount > 0) {
-//             res.json({ message: 'User status updated successfully', modifiedCount: result.modifiedCount });
-//         } else {
-//             res.status(404).json({ message: 'User not found or status not modified' });
-//         }
-//     } catch (error) {
-//         console.error('Error changing user status:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
 
+
+
+
+// Endpoint to update donation request status
+app.put('/updateDonationStatus/:id', async (req, res) => {
+    const requestId = req.params.id;
+    const { status } = req.body;
+
+    try {
+        const result = await requestCollection.updateOne(
+            { _id: new ObjectId(requestId) },
+            { $set: { status: status } }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.status(200).json({ message: 'Status updated successfully' });
+        } else {
+            res.status(404).json({ message: 'Request not found' });
+        }
+    } catch (err) {
+        console.error('Error updating status:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 
@@ -490,6 +518,67 @@ app.delete('/deleteBlog/:id', async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+// Endpoint to update  blog status
+app.put('/updateBlogsStatus/:id', async (req, res) => {
+    const requestId = req.params.id;
+    const { status } = req.body;
+
+    try {
+        const result = await blogCollection.updateOne(
+            { _id: new ObjectId(requestId) },
+            { $set: { status: status } }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.status(200).json({ message: 'Status updated successfully' });
+        } else {
+            res.status(404).json({ message: 'Request not found' });
+        }
+    } catch (err) {
+        console.error('Error updating status:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// update blogs api
+app.put('/blogsUpdate', async (req, res) => {
+    const { _id, name, email, district, upazila, image, headLine, story, status } = req.body;
+
+    const filter = { _id: new ObjectId(_id) };
+    const updateDoc = {
+        $set: {
+            name,
+            email,
+            district,
+            upazila,
+            image,
+            headLine,
+            story,
+            status
+        },
+    };
+
+    const result = await blogCollection.updateOne(filter, updateDoc);
+    res.json(result);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
