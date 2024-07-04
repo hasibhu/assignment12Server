@@ -1,10 +1,10 @@
- # website name:
+ # Server name:
   Server for Nexas Blood Donation application 
 
 
 #
 
-# Purpose of the application: 
+# Purpose of the server: 
 <h5> # The purpose of this server is to make a connection between database and the Blood Donation Application.</h5>
 
 
